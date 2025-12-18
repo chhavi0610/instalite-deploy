@@ -28,30 +28,33 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", async (req, res) =>{
 
-      const { email, password } = req.body;
-          const { email, password } = req.body;
+ try {
+    const email = req.body.email;
+    const password = req.body.password;
 
-  if (email === 'c@g.com' && password === '123') {
-    const token = jwt.sign(
-      { id: 0, email: 'c@g.com' },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    if (email === 'c@g.com' && password === '123') {
+      const token = jwt.sign(
+        { id: 0, email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
 
-    return res.status(200).json({
-      message: 'Test login successful',
-      token,
-      user: {
-        id: 0,
-        email: 'c@g.com',
-        username: 'Test User'
-      }
-    });
-  }
-  try {
-    // your existing DB login logic here
+      return res.status(200).json({
+        message: 'Test login success',
+        token,
+        user: {
+          id: 0,
+          email,
+          username: 'Test User'
+        }
+      });
+    }
+
+    return res.status(401).json({ message: 'Invalid credentials' });
+
   } catch (err) {
-    return res.status(500).json({ message: 'Server error' });
+    console.error('LOGIN ERROR:', err);
+    return res.status(500).json({ message: 'Login failed' });
   }
 });
 
