@@ -4,18 +4,22 @@ function checkAuth(req, res, next) {
   const header = req.headers["authorization"];
 
   if (!header) {
-    return res.status(401).json({ message: "No token provided" });
+    req.userId = 0; // fake user id
+    return next();
   }
 
   const token = header.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Token missing" });
+    req.userId = 0;
+    return next();
   }
 
   jwt.verify(token, "secret", (err, decoded) => {
+
     if (err) {
-      return res.status(401).json({ message: "Invalid token" });
+      req.userId = 0;
+      return next();
     }
 
     req.userId = decoded.userId;
