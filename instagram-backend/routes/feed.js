@@ -3,15 +3,19 @@ const db = require("../db");
 const checkAuth = require("../middleware/authMiddleware");
 const router = express.Router();
 
-router.get("/",(req, res) => {
- 
-const feed = "SELECT posts.id,posts.image_url,posts.caption,posts.created_at,users.username FROM posts JOIN followers ON posts.user_id = followers.following_id JOIN users ON users.id = posts.user_id WHERE followers.follower_id = ? ORDER BY posts.created_at DESC";
-db.query(feed,(err, result) => {
-if (err) {
-console.log("FEED SQL ERROR:", err);
-      return res.status(500).json({ message: "Error fetching feed" });}
-    res.json(result);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const [posts] = await db.query(`
+      SELECT * FROM posts
+      ORDER BY created_at DESC
+    `);
+
+    return res.status(200).json(posts);
+  } catch (err) {
+    console.error('FEED ERROR:', err);
+    return res.status(500).json({ message: 'Error fetching feed' });
+  }
 });
+
 
 module.exports = router;
